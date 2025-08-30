@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>9Para Blog</title>
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333;
+      --card-bg: #fff;
+      --nav-bg: #333;
+      --nav-text: #fff;
+    }
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --card-bg: #1e1e1e;
+      --nav-bg: #222;
+      --nav-text: #f0f0f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+    }
+    header {
+      background-color: var(--nav-bg);
+      color: var(--nav-text);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+    }
+    .logo h1 { font-size: 24px; font-style: oblique; }
+    .nav-links { list-style: none; display: flex; }
+    .nav-links li { margin-left: 20px; }
+    .nav-links a {
+      color: var(--nav-text);
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .nav-links a:hover { color: #ddd; }
+    #theme-toggle {
+      background: transparent;
+      color: var(--nav-text);
+      border: 1px solid var(--nav-text);
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #hero {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 60px 20px;
+      text-align: center;
+    }
+    .submit-btn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #fff;
+      color: #4CAF50;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .submit-btn:hover { background-color: #ddd; }
+    #filter {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 1rem;
+      gap: 1rem;
+    }
+    #filter select, #search {
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      min-width: 200px;
+    }
+    .scroll-wrapper {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+    }
+    .scroll-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      font-size: 18px;
+      z-index: 1;
+    }
+    #scroll-left { left: 0; }
+    #scroll-right { right: 0; }
+    #blog-posts {
+      display: flex;
+      gap: 20px;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+    }
+    .content-img {
+      max-width: 80%;
+      display: block;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+    .post {
+      background-color: var(--post-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      cursor: pointer;
+      flex: 0 0 300px;
+    }
+    .post img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .post-content {
+      padding: 15px;
+      overflow: hidden;
+    }
+    .post-content h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .post-content p {
+      font-size: 14px;
+      margin-bottom: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #about, #contact {
+      background-color: var(--post-bg);
+      padding: 40px 20px;
+      text-align: center;
+    }
+    footer {
+      background-color: var(--nav-bg);
+      color: var(--nav-text);
+      text-align: center;
+      padding: 20px 0;
+      margin-top: 40px;
+    }
+    #full-blog {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      padding: 40px 20px;
+      overflow-y: auto;
+      background-color: rgba(0,0,0,0.9);
+      z-index: 9999;
+      color: white;
+    }
+    #full-blog img {
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    .close-btn {
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    .close-btn:hover { background-color: #45a049; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo"><h1>9Para Blog</h1></div>
+    <ul class="nav-links">
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button id="theme-toggle">Toggle Theme</button>
+  </header>
+
+<section id="hero">
+  <div class="hero-content">
+    <h2>Welcome to 9Para Blog</h2>
+    <p>Your daily dose of inspiration and knowledge!</p>
+    <button class="submit-btn" onclick="window.location.href='submit.html'">Submit Your Blog</button>
+  </div>
+</section>
+
+<section id="filter">
+  <label for="filterSelect">Filter:</label>
+  <select id="filterSelect">
+    <option value="all">All</option>
+    <option value="day">Last Day</option>
+    <option value="week">Last Week</option>
+    <option value="month">Last Month</option>
+    <option value="year">Last Year</option>
+  </select>
+  <input type="text" id="search" placeholder="Search blog by title...">
+</section>
+
+<div class="scroll-wrapper">
+  <button class="scroll-btn" id="scroll-left">←</button>
+  <div id="blog-posts"></div>
+  <button class="scroll-btn" id="scroll-right">→</button>
+</div>
+
+<section id="about">
+  <h2>About Me</h2>
+  <p>Hello! I'm <strong>Sachin Sharma</strong>, a passionate self-taught web developer, designer, and technology enthusiast. With a strong love for clean code, user-friendly interfaces, and functional design, I aim to create digital experiences that not only look good but also work seamlessly across devices.</p>
+  <br>
+  <p>I specialize in front-end development using HTML, CSS, JavaScript, and React, while also exploring back-end technologies like Node.js and Firebase. Whether it's building blogs, portfolio websites, fitness websites or interactive web apps, I enjoy solving problems and learning something new every day.</p>
+  <br>
+  <p>When I'm not coding, I love writing about technology, contributing to open-source projects, and helping others grow their skills. This blog is my corner of the internet where I share tutorials, insights, and inspiration for developers and tech lovers like you.</p>
+
+  <br>
+  <p>you can also visit <a href="https://irontherapy.netlify.app/">my fitness website</a> for changing your body to dream body</p>
+  <p><em>Thanks for visiting 9Para Blog — I hope you find something here that informs, inspires, or motivates you!</em></p>
+</section>
+
+
+<section id="contact">
+  <h2>Contact Me</h2>
+  <p>DM me on Instagram: <a href="https://instagram.com/sachin_sharma_ind" target="_blank" style="color: #4CAF50;">@sachin_sharma_ind</a></p>
+</section>
+
+<section id="full-blog">
+  <button class="close-btn" onclick="closeFullBlog()">Close</button>
+  <img id="full-blog-image" alt="Blog Image">
+  <h2 id="full-blog-title"></h2>
+  <p id="full-blog-author"></p>
+  <div id="full-blog-content"></div>
+</section>
+
+
+<footer>
+  <p>&copy; 2025 9Para Blog | All Rights Reserved</p>
+</footer>
+
+<script>
+  const preMadePosts = [
+    {
+      author: 'Jane Smith',
+      title: 'The Future of Web Development',
+      content: '<p>Web development is evolving rapidly...</p>',
+      image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS6vTGh_6hFxyUlv0RfFfhab4EF8hOlzTnSQg&s',
+      date: new Date().toISOString()
+    },
+    {
+      author: 'John Doe',
+      title: 'Top 10 Python Tips for Beginners',
+      content: '<p>If you are new to Python, these 10 tips will help...</p>',
+      image: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Python-logo-notext.svg',
+      date: new Date().toISOString()
+    },
+    {
+      author: 'Emily Turner',
+      title: 'AI in Everyday Life',
+      content: '<p>From smart assistants to predictive text...</p>',
+      image: 'https://images.unsplash.com/photo-1542831371-d531d36971e6?auto=format&fit=crop&w=500&q=60',
+      date: new Date().toISOString()
+    }
+  ];
+
+  function openFullBlog(post) {
+    document.getElementById('full-blog-title').textContent = post.title;
+    document.getElementById('full-blog-author').textContent = `By: ${post.author}`;
+    document.getElementById('full-blog-content').innerHTML = post.content;
+    document.getElementById('full-blog-image').src = post.image;
+    document.getElementById('full-blog').style.display = 'block';
+  }
+
+  function closeFullBlog() {
+    document.getElementById('full-blog').style.display = 'none';
+  }
+
+  function renderBlogs(filter = "all") {
+    const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+    const blogContainer = document.getElementById('blog-posts');
+    blogContainer.innerHTML = '';
+    const allPosts = [...preMadePosts, ...blogPosts];
+
+    const now = new Date();
+    const filteredPosts = allPosts.filter(post => {
+      const postDate = new Date(post.date);
+      if (filter === "day") return (now - postDate) <= 86400000;
+      if (filter === "week") return (now - postDate) <= 604800000;
+      if (filter === "month") return (now - postDate) <= 2629800000;
+      if (filter === "year") return (now - postDate) <= 31557600000;
+      return true;
+    });
+
+    filteredPosts.forEach(post => {
+      const postDiv = document.createElement('div');
+      postDiv.classList.add('post');
+      postDiv.innerHTML = `
+        <img src="${post.image}" alt="Blog Post Image">
+        <div class="post-content">
+          <h3>${post.title}</h3>
+          <p><strong>By: </strong>${post.author}</p>
+          <p>${stripHtml(post.content).substring(0, 100)}...</p>
+        </div>`;
+      postDiv.addEventListener('click', () => openFullBlog(post));
+      blogContainer.appendChild(postDiv);
+    });
+  }
+
+  function stripHtml(html) {
+    let div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  }
+
+  function searchBlogs() {
+    const query = document.getElementById('search').value.toLowerCase();
+    const cards = document.querySelectorAll('.post');
+    cards.forEach(card => {
+      const title = card.querySelector('h3').textContent.toLowerCase();
+      card.style.display = title.includes(query) ? 'block' : 'none';
+    });
+  }
+
+  document.getElementById('search').addEventListener('input', searchBlogs);
+  document.getElementById('filterSelect').addEventListener('change', function () {
+    renderBlogs(this.value);
+  });
+
+  document.addEventListener('DOMContentLoaded', () => renderBlogs());
+  document.getElementById('scroll-left').addEventListener('click', () => {
+    document.getElementById('blog-posts').scrollBy({ left: -960, behavior: 'smooth' });
+  });
+  document.getElementById('scroll-right').addEventListener('click', () => {
+    document.getElementById('blog-posts').scrollBy({ left: 960, behavior: 'smooth' });
+  });
+  // Load theme from localStorage
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') document.body.classList.add('dark');
+
+  document.getElementById('theme-toggle').addEventListener('click', () => {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+  });
+</script>
+
+
+</body>
+</html>
+
+

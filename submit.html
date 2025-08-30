@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Submit Your Blog</title>
+  <style>
+    :root {
+      --bg-color: #f4f4f4;
+      --text-color: #333;
+      --card-bg: #fff;
+      --nav-bg: #333;
+      --nav-text: #fff;
+    }
+    body.dark {
+      --bg-color: #121212;
+      --text-color: #f0f0f0;
+      --card-bg: #1e1e1e;
+      --nav-bg: #222;
+      --nav-text: #f0f0f0;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    header {
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    }
+    .logo h1 {
+      font-size: 24px;
+      font-style: oblique;
+    }
+    #theme-toggle {
+      background: transparent;
+      color: var(--nav-text);
+      border: 1px solid var(--nav-text);
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    input, textarea, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    a {
+      color: rgb(30, 0, 112);
+      background-color: rgb(226, 218, 208);
+      padding: 5px 10px;
+      display: inline-block;
+      text-decoration: none;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    img.content-img {
+      width: 90%;
+      max-width: 400px;
+      display: block;
+      margin: 10px auto;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo"><h1>Submit Blog</h1></div>
+    <button id="theme-toggle">Toggle Theme</button>
+  </header>
+  <div class="container">
+    <h2>Submit Your Blog</h2>
+    <form id="blogSubmissionForm">
+      <input type="text" id="authorName" placeholder="Your Name" required>
+      <input type="text" id="blogTitle" placeholder="Blog Title" required>
+      <textarea id="blogContent" placeholder="Write your blog content... (Use [img] to insert each content image)" rows="5" required></textarea>
+      <a href="https://chatgpt.com/" target="_blank">Ask AI for content...</a><br><br>
+      <label>Cover Image:</label>
+      <input type="file" id="blogCoverImage" accept="image/*" required>
+      <label>Blog Content Images:</label>
+      <input type="file" id="blogContentImages" accept="image/*" multiple>
+      <button type="submit">Submit Blog</button>
+    </form>
+  </div>
+
+  <script>
+    function compressImage(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const img = new Image();
+        img.onload = function () {
+          const canvas = document.createElement("canvas");
+          const ctx = canvas.getContext("2d");
+          const maxWidth = 800;
+          const scale = maxWidth / img.width;
+          canvas.width = maxWidth;
+          canvas.height = img.height * scale;
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.6);
+          callback(compressed);
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById('blogSubmissionForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const author = document.getElementById('authorName').value.trim();
+      const title = document.getElementById('blogTitle').value.trim();
+      const content = document.getElementById('blogContent').value;
+      const coverImageFile = document.getElementById('blogCoverImage').files[0];
+      const contentImageFiles = document.getElementById('blogContentImages').files;
+
+      if (!author || !title || !content || !coverImageFile) {
+        alert("Please fill in all fields and select a cover image.");
+        return;
+      }
+
+      compressImage(coverImageFile, function (coverImageBase64) {
+        const compressedImages = [];
+        let loadedImages = 0;
+
+        if (contentImageFiles.length === 0) {
+          saveBlog(coverImageBase64, []);
+          return;
+        }
+
+        Array.from(contentImageFiles).forEach((file, index) => {
+          compressImage(file, function (dataUrl) {
+            compressedImages[index] = dataUrl;
+            loadedImages++;
+            if (loadedImages === contentImageFiles.length) {
+              saveBlog(coverImageBase64, compressedImages);
+            }
+          });
+        });
+      });
+
+      function saveBlog(cover, images) {
+        const contentParts = content.split('[img]');
+        let finalContent = '';
+
+        contentParts.forEach((part, idx) => {
+          finalContent += `<p>${part.trim()}</p>`;
+          if (images[idx]) {
+            finalContent += `<img src="${images[idx]}" class="content-img"/>`;
+          }
+        });
+
+        // Add any leftover images at the end
+        for (let i = contentParts.length; i < images.length; i++) {
+          finalContent += `<img src="${images[i]}" class="content-img"/>`;
+        }
+
+        const newPost = {
+          author,
+          title,
+          content: finalContent,
+          image: cover,
+          date: new Date().toISOString()
+        };
+
+        const blogPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+        blogPosts.push(newPost);
+        localStorage.setItem('blogPosts', JSON.stringify(blogPosts));
+        alert("Blog submitted successfully!");
+        window.location.href = 'index.html';
+      }
+    });
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') document.body.classList.add('dark');
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
